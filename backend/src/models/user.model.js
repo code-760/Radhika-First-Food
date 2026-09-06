@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
   fullname: {
@@ -14,12 +14,16 @@ const userSchema = new mongoose.Schema({
 
   contact: {
     type: String,
-    required: true,
   },
 
   password: {
     type: String,
-    required: true,
+    required: function () {
+      return !this.googleId;
+    },
+  },
+  googleId: {
+    type: String,
   },
 });
 

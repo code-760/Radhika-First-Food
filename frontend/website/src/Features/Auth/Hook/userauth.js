@@ -1,5 +1,5 @@
 import {    useDispatch } from "react-redux";
-import { register } from "../Service/auth.api";
+import { login, register } from "../Service/auth.api";
 import { setError, setLoading, setUser } from "../state/api.slice";
 import { redirect } from "react-router";
 
@@ -24,7 +24,23 @@ export const userauth=()=>{
         }
     }
 
-    return {handelregister}
+    const handlLogin = async(formData)=>{
+        try{
+            setLoading(true);
+ 
+            const response=await login(formData)
+              dispatch(setUser(response.data));
+              setLoading(false);
+            return response.user
+        }
+        catch(error){
+            dispatch(setError(error.response.data));
+            setLoading(false);
+            return error.response.data;
+        }
+    };
+
+    return {handelregister,handlLogin}
 
     
 }

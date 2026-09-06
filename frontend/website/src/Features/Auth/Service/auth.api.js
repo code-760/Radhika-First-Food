@@ -1,7 +1,8 @@
 import axios from "axios";
+import { cache } from "react";
 
 const api=axios.create({
-    baseURL:"http://localhost:3000/api/web/auth",
+    baseURL:"/api/web/auth",
     withCredentials:true
     
 });
@@ -13,6 +14,16 @@ export const register=async(formData)=>{
     }catch(error){
         return error.response.data;
     }       
+}
+
+export const login=async(formData)=>{
+    try{
+        const response=await api.get("/login",formData)
+        return response.data
+    }
+    catch(error){
+ return error.response.data;
+    }
 }
 
 

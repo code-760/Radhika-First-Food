@@ -35,7 +35,7 @@ export const validateRegister = (formData) => {
     newErrors.password = 'Password must be at least 6 characters long';
   }
 
-
+  
 
   // Terms
   if (!formData.agreeTerms) {

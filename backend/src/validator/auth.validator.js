@@ -26,3 +26,9 @@ export const validationRegister = [
     .withMessage('Full name must be at least 3 characters long'),
   validateRequest,
 ];
+
+export const validationLogin = [
+  body('email').isEmail().withMessage('Invalid email format'),
+  body('password').notEmpty().withMessage('Password is required'),
+  validateRequest,
+];
