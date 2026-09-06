@@ -1,23 +1,27 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import burgerHeroImg from '../../assets/burger-hero.jpg';
+import { validateRegister } from '../validations/registerValidation';
+import burgerHeroImg from "../../../assets/burger-hero.jpg";
+import { userauth } from '../Hook/userauth';
 
 export default function Register() {
   const navigate = useNavigate();
 
+  const { handelregister, loading, error } = userauth()
+
+  const [isLoading, setIsLoading] = useState(false);
+
   // Form input state
   const [formData, setFormData] = useState({
-    fullName: '',
+    fullname: '',
     email: '',
     contact: '',
     password: '',
-    confirmPassword: '',
-    agreeTerms: false,
   });
 
   // Password visibility states
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
 
   // Validation error state
   const [errors, setErrors] = useState({});
@@ -38,77 +42,24 @@ export default function Register() {
     }
   };
 
-  // Frontend validation logic
-  const validateForm = () => {
-    const newErrors = {};
 
-    // Full Name validation
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
-    } else if (formData.fullName.trim().length < 2) {
-      newErrors.fullName = 'Full name must be at least 2 characters';
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email address is required';
-    } else if (!emailRegex.test(formData.email.trim())) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    // Contact Number validation
-    const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]{7,14}$/;
-    if (!formData.contact.trim()) {
-      newErrors.contact = 'Contact number is required';
-    } else if (!phoneRegex.test(formData.contact.trim().replace(/\s/g, ''))) {
-      newErrors.contact = 'Please enter a valid contact number';
-    }
-
-    // Password validation
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters long';
-    }
-
-    // Confirm Password validation
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Confirm password is required';
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-
-    // Terms validation
-    if (!formData.agreeTerms) {
-      newErrors.agreeTerms = 'You must agree to the Terms & Conditions';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   // Handle Form Submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
+    const newErrors = validateRegister(formData);
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length !== 0) {
       return;
     }
+    setIsLoading(true);
+    const response = await handelregister(formData);
 
-    // Frontend logging for now
-    console.log('Registration submitted successfully:', {
-      fullName: formData.fullName,
-      email: formData.email,
-      contact: formData.contact,
-      agreeTerms: formData.agreeTerms,
-    });
-
-    setSuccessMessage(`Account created successfully for ${formData.fullName}! Welcome to Foodies.`);
+    setSuccessMessage(`Account created successfully for ${formData.fullname}! Welcome to Foodies.`);
 
     // Reset form fields
     setFormData({
-      fullName: '',
+      fullname: '',
       email: '',
       contact: '',
       password: '',
@@ -118,7 +69,10 @@ export default function Register() {
 
     setTimeout(() => {
       setSuccessMessage('');
+      setIsLoading(false);
+      navigate("/")
     }, 5000);
+
   };
 
   // Google Registration placeholder
@@ -277,7 +231,7 @@ export default function Register() {
 
             {/* 1. Full Name */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs sm:text-sm font-semibold text-gray-700" htmlFor="fullName">
+              <label className="text-xs sm:text-sm font-semibold text-gray-700" htmlFor="fullname">
                 Full Name
               </label>
               <div className="relative flex items-center">
@@ -289,17 +243,17 @@ export default function Register() {
                   </svg>
                 </div>
                 <input
-                  id="fullName"
-                  name="fullName"
+                  id="fullname"
+                  name="fullname"
                   type="text"
                   placeholder="Enter your full name"
-                  value={formData.fullName}
+                  value={formData.fullname}
                   onChange={handleChange}
-                  className={`w-full pl-10 sm:pl-11 pr-4 py-2.5 sm:py-3 text-sm text-gray-900 bg-white border ${errors.fullName ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#FF6B00]'
+                  className={`w-full pl-10 sm:pl-11 pr-4 py-2.5 sm:py-3 text-sm text-gray-900 bg-white border ${errors.fullname ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#FF6B00]'
                     } rounded-xl outline-none focus:ring-4 focus:ring-[#FF6B00]/10 transition-all placeholder:text-gray-400`}
                 />
               </div>
-              {errors.fullName && <span className="text-red-500 text-xs mt-0.5">{errors.fullName}</span>}
+              {errors.fullname && <span className="text-red-500 text-xs mt-0.5">{errors.fullname}</span>}
             </div>
 
             {/* 2. Email Address */}
@@ -429,7 +383,19 @@ export default function Register() {
               type="submit"
               className="w-full mt-2 py-3.5 bg-[#FF6B00] hover:bg-[#E66000] active:scale-[0.99] text-white font-bold text-sm sm:text-base rounded-xl shadow-lg shadow-[#FF6B00]/25 hover:shadow-[#FF6B00]/35 transition-all duration-200 cursor-pointer"
             >
-              Create Account
+
+              {isLoading ? <div className="flex items-center justify-center gap-2">
+
+                <div
+                  class="w-6 h-6   border-3 border-t-blue-500 border-gray-300 rounded-full animate-spin"
+                >
+
+
+                </div>
+
+
+
+              </div> : "Create Account"}
             </button>
           </form>
 

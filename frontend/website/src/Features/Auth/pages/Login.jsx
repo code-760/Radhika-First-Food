@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import burgerHeroImg from '../../assets/burger-hero.jpg';
+import burgerHeroImg from '../../../assets/burger-hero.jpg';
+import { validateLogin } from '../validations/loginValidation';
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,25 +21,16 @@ export default function Login() {
     }
   };
 
-  const validate = () => {
-    const newErrors = {};
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email address is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!validate()) return;
+
+    const newErrors = validateLogin(formData);
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length !== 0) {
+      return;
+    }
 
     console.log('Login attempt with:', { email: formData.email, rememberMe });
     setStatusMessage(`Welcome back! Signed in as ${formData.email}`);
@@ -63,7 +55,7 @@ export default function Login() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/60 pointer-events-none" />
 
         {/* Brand Logo Header */}
-         <div className="relative z-10 flex items-center gap-4">
+        <div className="relative z-10 flex items-center gap-4">
           <div className="w-52 h-16 lg:w-64 lg:h-20 flex items-center justify-center">
             <svg
               width="100%"
@@ -165,7 +157,7 @@ export default function Login() {
       {/* ================= RIGHT SECTION (FORM) ================= */}
       <div className="lg:w-[58%] w-full flex items-center justify-center p-6 sm:p-10 lg:p-14 bg-white overflow-y-auto">
         <div className="w-full max-w-lg mx-auto py-4">
-          
+
           {/* Tabs: Sign In (active) / Sign Up */}
           <div className="flex items-center gap-8 border-b border-gray-100 pb-3 mb-7">
             <div className="relative pb-3 text-base sm:text-lg font-bold text-[#FF6B00] cursor-default">
@@ -202,9 +194,8 @@ export default function Login() {
                   placeholder="alex@foodies.com"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-2.5 sm:py-3 text-sm text-gray-900 bg-white border ${
-                    errors.email ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#FF6B00]'
-                  } rounded-xl outline-none focus:ring-4 focus:ring-[#FF6B00]/10 transition-all placeholder:text-gray-400`}
+                  className={`w-full px-4 py-2.5 sm:py-3 text-sm text-gray-900 bg-white border ${errors.email ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#FF6B00]'
+                    } rounded-xl outline-none focus:ring-4 focus:ring-[#FF6B00]/10 transition-all placeholder:text-gray-400`}
                 />
               </div>
               {errors.email && <span className="text-red-500 text-xs mt-0.5">{errors.email}</span>}
@@ -223,9 +214,8 @@ export default function Login() {
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-2.5 sm:py-3 pr-11 text-sm text-gray-900 bg-white border ${
-                    errors.password ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#FF6B00]'
-                  } rounded-xl outline-none focus:ring-4 focus:ring-[#FF6B00]/10 transition-all placeholder:text-gray-400`}
+                  className={`w-full px-4 py-2.5 sm:py-3 pr-11 text-sm text-gray-900 bg-white border ${errors.password ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-[#FF6B00]'
+                    } rounded-xl outline-none focus:ring-4 focus:ring-[#FF6B00]/10 transition-all placeholder:text-gray-400`}
                 />
                 <button
                   type="button"

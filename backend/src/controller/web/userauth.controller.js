@@ -1,4 +1,33 @@
+import { envconfig } from "../../config/config.js";
 import userModel from "../../models/user.model.js";
+import jwt from "jsonwebtoken"
+
+const  sendTokenResponse=async(data, res, message)=> {
+
+  const token = jwt.sign(
+    {
+      id: data._id,
+    },
+    envconfig.JWT_SECRET,
+    {
+      expiresIn: '7d',
+    },
+  );
+
+  res.cookie('token', token);
+
+  res.status(200).json({
+    message,
+    success: true,
+    data: {
+      id: data._id,
+      email: data.email,
+      contact: data.contact,
+      fullname: data.fullname,
+     
+    },
+  });
+}
 
 export const register = async (req, res) => {
   try {
@@ -19,7 +48,7 @@ export const register = async (req, res) => {
       email:email
     })
 
-    console.log(data)
+    await sendTokenResponse(data, res, 'User registered successfully');
 
     res.status(200).json({
       message:"user successfully registered",
